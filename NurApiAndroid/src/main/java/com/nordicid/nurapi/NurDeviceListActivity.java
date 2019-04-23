@@ -21,16 +21,19 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,7 +43,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -75,14 +77,14 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
     // Default
     private long mScanPeriod = DEF_SCAN_PERIOD;
     private boolean mScanning = false;
-    private ProgressBar mScanProgress;
+    //private ProgressBar mScanProgress;
     private Button mCancelButton;
 
     private static  NurApi mApi;
 
     public void onScanStarted(){
         Log.d(TAG,"Scan for devices started");
-        mScanProgress.setVisibility(View.VISIBLE);
+        //mScanProgress.setVisibility(View.VISIBLE);
         mCancelButton.setText(R.string.text_cancel);
         mScanning = true;
     }
@@ -96,24 +98,28 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
         Log.d(TAG,"Scan for devices finished");
         mCancelButton.setText(R.string.text_scan);
         mScanning = false;
-        mScanProgress.setVisibility(View.GONE);
+        //mScanProgress.setVisibility(View.GONE);
     }
+
+    private Dialog deviceListDialog;
+    private View dialogView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setResult(RESULT_CANCELED);
         Log.d(TAG, "onCreate");
-        setContentView(R.layout.device_list);
-        android.view.WindowManager.LayoutParams layoutParams = this.getWindow().getAttributes();
+        setContentView(R.layout.activity_nur_device_list);
+        showScannerDeviceListDialog();
+        /*android.view.WindowManager.LayoutParams layoutParams = this.getWindow().getAttributes();
         layoutParams.gravity = Gravity.TOP;
-        layoutParams.y = 200;
+        layoutParams.y = 200;*/
 
-        mCancelButton = (Button) findViewById(R.id.btn_cancel);
-        mScanProgress = (ProgressBar) findViewById(R.id.scan_progress);
-        mScanProgress.setVisibility(View.VISIBLE);
-        mScanProgress.setScaleY(0.5f);
-        mScanProgress.setScaleX(0.5f);
+
+        //mScanProgress = (ProgressBar) findViewById(R.id.scan_progress);
+        //mScanProgress.setVisibility(View.VISIBLE);
+        //mScanProgress.setScaleY(0.5f);
+        //mScanProgress.setScaleX(0.5f);
 
         mRequestedDevices = getIntent().getIntExtra(REQUESTED_DEVICE_TYPES, ALL_DEVICES);
         mScanPeriod = getIntent().getLongExtra(STR_SCANTIMEOUT, DEF_SCAN_PERIOD);
@@ -144,13 +150,25 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
         populateList();
     }
 
+    private void showScannerDeviceListDialog(){
+        LayoutInflater inflater = getLayoutInflater();
+        dialogView = inflater.inflate(R.layout.dialog_device_list, null);
+        if (deviceListDialog != null){
+            deviceListDialog.cancel();
+        }
+        mCancelButton = dialogView.findViewById(R.id.btn_cancel);
+        deviceListDialog = new AlertDialog.Builder(this).setCancelable(false).setView(dialogView).create();
+        deviceListDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        deviceListDialog.show();
+    }
+
     private void populateList() {
         /* Initialize device list container */
         Log.d(TAG, "populateList");
         ListView newDevicesListView;
         mDeviceList = new ArrayList<NurDeviceSpec>();
         deviceAdapter = new DeviceAdapter(this, mDeviceList);
-        newDevicesListView = (ListView) findViewById(R.id.new_devices);
+        newDevicesListView = dialogView.findViewById(R.id.new_devices);
         newDevicesListView.setAdapter(deviceAdapter);
         newDevicesListView.setOnItemClickListener(mDeviceClickListener);
         mDeviceScanner.scanDevices();
@@ -231,7 +249,7 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
             if (convertView != null) {
                 vg = (ViewGroup) convertView;
             } else {
-                vg = (ViewGroup) inflater.inflate(R.layout.device_element, null);
+                vg = (ViewGroup) inflater.inflate(R.layout.item_device, null);
             }
 
             NurDeviceSpec  deviceSpec = devices.get(position);

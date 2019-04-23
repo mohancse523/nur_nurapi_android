@@ -93,7 +93,7 @@ public class NurDeviceScanner implements BleScannerListener {
 
         if (requestingUSBDevice()) {
             Log.i(TAG,"Scanning USB Devices");
-            addDevice(getUsbDeviceSpec());
+            //addDevice(getUsbDeviceSpec());
         }
 
         if (requestingETHDevice()) {
@@ -388,7 +388,7 @@ public class NurDeviceScanner implements BleScannerListener {
     {
         if (NurSmartPairSupport.isSupported()) {
             // Add smart pair
-            addDevice(getSmartPairBleDeviceSpec());
+            //addDevice(getSmartPairBleDeviceSpec());
         }
 
         // Add paired
