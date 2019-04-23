@@ -1,13 +1,13 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     defaultConfig {
-        def nurapiVersionCode = 36
-        def nurapiVersion = "2.0.36"
+        def nurapiVersionCode = 37
+        def nurapiVersion = "2.0.37"
 
-        minSdkVersion 21
-        targetSdkVersion 27
+        minSdkVersion 16
+        targetSdkVersion 28
         versionCode nurapiVersionCode
         versionName nurapiVersion
         buildConfigField "String", "NURVERSION", "\"$nurapiVersion\""
@@ -20,7 +20,7 @@ android {
         }
     }
     /* buildToolsVersion '26.0.2' */
-    buildToolsVersion '28.0.3'
+    /*buildToolsVersion '28.0.3'*/
 
     /* Always remove NurApi.jar when doing clean build. Will downloaded in preBuild step */
     clean << {
