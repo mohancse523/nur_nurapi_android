@@ -101,16 +101,12 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
         //mScanProgress.setVisibility(View.GONE);
     }
 
-    private Dialog deviceListDialog;
-    private View dialogView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setResult(RESULT_CANCELED);
         Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_nur_device_list);
-        showScannerDeviceListDialog();
         /*android.view.WindowManager.LayoutParams layoutParams = this.getWindow().getAttributes();
         layoutParams.gravity = Gravity.TOP;
         layoutParams.y = 200;*/
@@ -120,7 +116,7 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
         //mScanProgress.setVisibility(View.VISIBLE);
         //mScanProgress.setScaleY(0.5f);
         //mScanProgress.setScaleX(0.5f);
-
+        mCancelButton = findViewById(R.id.btn_cancel);
         mRequestedDevices = getIntent().getIntExtra(REQUESTED_DEVICE_TYPES, ALL_DEVICES);
         mScanPeriod = getIntent().getLongExtra(STR_SCANTIMEOUT, DEF_SCAN_PERIOD);
         mCheckNordicID = getIntent().getBooleanExtra(STR_CHECK_NID, true);
@@ -150,25 +146,13 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
         populateList();
     }
 
-    private void showScannerDeviceListDialog(){
-        LayoutInflater inflater = getLayoutInflater();
-        dialogView = inflater.inflate(R.layout.dialog_device_list, null);
-        if (deviceListDialog != null){
-            deviceListDialog.cancel();
-        }
-        mCancelButton = dialogView.findViewById(R.id.btn_cancel);
-        deviceListDialog = new AlertDialog.Builder(this).setCancelable(false).setView(dialogView).create();
-        deviceListDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        deviceListDialog.show();
-    }
-
     private void populateList() {
         /* Initialize device list container */
         Log.d(TAG, "populateList");
         ListView newDevicesListView;
         mDeviceList = new ArrayList<NurDeviceSpec>();
         deviceAdapter = new DeviceAdapter(this, mDeviceList);
-        newDevicesListView = dialogView.findViewById(R.id.new_devices);
+        newDevicesListView = findViewById(R.id.new_devices);
         newDevicesListView.setAdapter(deviceAdapter);
         newDevicesListView.setOnItemClickListener(mDeviceClickListener);
         mDeviceScanner.scanDevices();
