@@ -17,21 +17,12 @@
 
 package com.nordicid.nurapi;
 
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.List;
-
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,10 +32,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Nordic ID on 18.7.2016.
@@ -78,25 +72,30 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
     private long mScanPeriod = DEF_SCAN_PERIOD;
     private boolean mScanning = false;
     //private ProgressBar mScanProgress;
-    private Button mCancelButton;
-
-    private static  NurApi mApi;
+    private TextView mCancelButton, mScanButton;
+    private TextView listEmptyMessage;
+    private static NurApi mApi;
 
     public void onScanStarted(){
         Log.d(TAG,"Scan for devices started");
         //mScanProgress.setVisibility(View.VISIBLE);
-        mCancelButton.setText(R.string.text_cancel);
+        mScanButton.setVisibility(View.GONE);
         mScanning = true;
     }
 
     public void onDeviceFound(NurDeviceSpec device){
         mDeviceList.add(device);
         deviceAdapter.notifyDataSetChanged();
+        if (mDeviceList.size() == 0){
+            listEmptyMessage.setVisibility(View.VISIBLE);
+        }else {
+            listEmptyMessage.setVisibility(View.GONE);
+        }
     }
 
     public void onScanFinished(){
         Log.d(TAG,"Scan for devices finished");
-        mCancelButton.setText(R.string.text_scan);
+        mScanButton.setVisibility(View.VISIBLE);
         mScanning = false;
         //mScanProgress.setVisibility(View.GONE);
     }
@@ -116,7 +115,9 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
         //mScanProgress.setVisibility(View.VISIBLE);
         //mScanProgress.setScaleY(0.5f);
         //mScanProgress.setScaleX(0.5f);
-        mCancelButton = findViewById(R.id.btn_cancel);
+        mCancelButton = findViewById(R.id.cancel);
+        mScanButton = findViewById(R.id.scan);
+        listEmptyMessage = findViewById(R.id.list_empty_message);
         mRequestedDevices = getIntent().getIntExtra(REQUESTED_DEVICE_TYPES, ALL_DEVICES);
         mScanPeriod = getIntent().getLongExtra(STR_SCANTIMEOUT, DEF_SCAN_PERIOD);
         mCheckNordicID = getIntent().getBooleanExtra(STR_CHECK_NID, true);
@@ -126,23 +127,25 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
         /** **/
 
         if ((mRequestedDevices & REQ_BLE_DEVICES) != 0) {
-            mCancelButton.setOnClickListener(new OnClickListener() {
+            mScanButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (!mScanning) {
                         mDeviceScanner.scanDevices();
                     }
-                    else {
-                        mDeviceScanner.stopScan();
-                        if (!mDeviceScanner.isEthQueryRunning())
-                            finish();
-                        else
-                            showMessage("Ethernet query not ready...");
-                    }
                 }
             });
-        } else
-            mCancelButton.setEnabled(false);
+            mCancelButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mDeviceScanner.stopScan();
+                    if (!mDeviceScanner.isEthQueryRunning())
+                        finish();
+                    else
+                        showMessage("Ethernet query not ready...");
+                }
+            });
+        }
         populateList();
     }
 
@@ -156,6 +159,11 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
         newDevicesListView.setAdapter(deviceAdapter);
         newDevicesListView.setOnItemClickListener(mDeviceClickListener);
         mDeviceScanner.scanDevices();
+        if (mDeviceList.size() == 0){
+            listEmptyMessage.setVisibility(View.VISIBLE);
+        }else {
+            listEmptyMessage.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -179,7 +187,7 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
     }
 
     private OnItemClickListener mDeviceClickListener = new OnItemClickListener() {
-    	
+
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             NurDeviceSpec deviceSpec;
@@ -199,7 +207,7 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
         super.onPause();
         mDeviceScanner.stopScan();
     }
-    
+
     class DeviceAdapter extends BaseAdapter {
         Context context;
         List<NurDeviceSpec> devices;
@@ -233,43 +241,16 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
             if (convertView != null) {
                 vg = (ViewGroup) convertView;
             } else {
-                vg = (ViewGroup) inflater.inflate(R.layout.item_device, null);
+                vg = (ViewGroup) inflater.inflate(com.nordicid.nurapi.R.layout.item_device, null);
             }
-
-            NurDeviceSpec  deviceSpec = devices.get(position);
-            final TextView tvadd = ((TextView) vg.findViewById(R.id.address));
-            final TextView tvname = ((TextView) vg.findViewById(R.id.name));
-            final TextView tvpaired = (TextView) vg.findViewById(R.id.paired);
-            final TextView tvrssi = (TextView) vg.findViewById(R.id.rssi);
-
-            if (deviceSpec.getType().equals("BLE")) {
-                int rssiVal = deviceSpec.getRSSI();
-                if (rssiVal < 0)    // Might be also != 0...
-                    tvrssi.setText("RSSI: " + rssiVal);
-                else
-                    tvrssi.setText("RSSI: N/A");
-
-                tvrssi.setVisibility(View.VISIBLE);
-
-                if (deviceSpec.getBondState()) {
-                    tvpaired.setVisibility(View.VISIBLE);
-                } else {
-                    tvpaired.setVisibility(View.GONE);
-                }
+            NurDeviceSpec deviceSpec = devices.get(position);
+            final TextView deviceName = vg.findViewById(R.id.device_name);
+            deviceName.setText(deviceSpec.getName());
+            if (position == getCount()-1){
+                vg.setBackgroundResource(R.drawable.border_top_left_bottom_right_gray);
+            }else {
+                vg.setBackgroundResource(R.drawable.border_top_left_right_gray);
             }
-            else {
-                tvpaired.setVisibility(View.GONE);
-                tvrssi.setVisibility(View.GONE);
-            }
-
-            tvname.setText(deviceSpec.getName());
-
-            if (deviceSpec.getType().equals("TCP")) {
-                tvadd.setText(deviceSpec.getAddress() + " ("+deviceSpec.getPart("transport", "LAN")+")");
-            } else {
-                tvadd.setText(deviceSpec.getAddress());
-            }
-
             return vg;
         }
     }
