@@ -79,7 +79,7 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
     public void onScanStarted(){
         Log.d(TAG,"Scan for devices started");
         //mScanProgress.setVisibility(View.VISIBLE);
-        mScanButton.setVisibility(View.GONE);
+        mScanButton.setVisibility(View.INVISIBLE);
         mScanning = true;
     }
 
