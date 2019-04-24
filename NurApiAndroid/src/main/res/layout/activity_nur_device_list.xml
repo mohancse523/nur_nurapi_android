@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="#fff">
+    android:background="#fff"
+    android:paddingBottom="10dp">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -17,7 +18,7 @@
             android:gravity="center"
             android:text="@string/select_scanner"
             android:padding="20dp"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:background="#3F51B5"/>
         <ListView
@@ -29,7 +30,8 @@
             android:divider="#00000000"
             android:dividerHeight="0dp"
             android:stackFromBottom="true"
-            tools:listitem="@layout/item_device"/>
+            tools:listitem="@layout/item_device"
+            android:visibility="gone"/>
         <TextView
             android:id="@+id/list_empty_message"
             android:layout_height="wrap_content"
@@ -37,9 +39,12 @@
             android:textColor="#212121"
             android:gravity="center"
             android:text="@string/list_empty_message"
-            android:padding="10dp"
-            android:textSize="20sp"
-            android:visibility="gone" />
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:textSize="16sp"
+            android:visibility="visible" />
     </LinearLayout>
     <RelativeLayout
         android:layout_width="match_parent"
@@ -63,7 +68,7 @@
             android:text="@string/text_scan"
             android:layout_alignParentRight="true"
             android:padding="10dp"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#01A368"
             android:visibility="gone"/>
