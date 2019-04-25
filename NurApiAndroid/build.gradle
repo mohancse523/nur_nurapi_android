@@ -3,8 +3,8 @@ apply plugin: 'com.android.library'
 android {
     compileSdkVersion 28
     defaultConfig {
-        def nurapiVersionCode = 43
-        def nurapiVersion = "2.0.43"
+        def nurapiVersionCode = 44
+        def nurapiVersion = "2.0.44"
 
         minSdkVersion 18
         targetSdkVersion 28
@@ -66,10 +66,10 @@ android {
         }
     }*/
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
+    /*compileOptions {
+        sourceCompatibility 'JavaVersion.VERSION_1_8'
+        targetCompatibility 'JavaVersion.VERSION_1_8'
+    }*/
 }
 
 task sourcesJar(type: Jar) {
@@ -79,7 +79,7 @@ task sourcesJar(type: Jar) {
 
 dependencies {
     compileOnly fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'no.nordicsemi.android.support.v18:scanner:1.0.0'
 }
