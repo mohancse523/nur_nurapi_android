@@ -79,7 +79,7 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
     public void onScanStarted(){
         Log.d(TAG,"Scan for devices started");
         //mScanProgress.setVisibility(View.VISIBLE);
-        mScanButton.setVisibility(View.INVISIBLE);
+        mScanButton.setText("");
         mScanning = true;
     }
 
@@ -90,13 +90,26 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
             listEmptyMessage.setVisibility(View.VISIBLE);
         }else {
             listEmptyMessage.setVisibility(View.GONE);
+            mScanButton.setText(R.string.select_device);
         }
     }
 
     public void onScanFinished(){
         Log.d(TAG,"Scan for devices finished");
-        mScanButton.setVisibility(View.VISIBLE);
+        mScanButton.setText(R.string.text_scan);
         mScanning = false;
+        if (mDeviceList.size() == 1){
+            NurDeviceSpec deviceSpec;
+            mDeviceScanner.stopScan();
+            deviceSpec = mDeviceList.get(0);
+            Bundle b = new Bundle();
+            // e.g. "type=BLE;addr=00:00:00:00:00:00;name=XXX;rssi=-44"
+            b.putString(SPECSTR, deviceSpec.getSpec());
+            Intent result = new Intent();
+            result.putExtras(b);
+            setResult(RESULT_OK, result);
+            finish();
+        }
         //mScanProgress.setVisibility(View.GONE);
     }
 

@@ -2,7 +2,7 @@
     <string name="app_name">NurApiAndroid</string>
 
     <string name="text_scanning">Scanning for devices...</string>
-    <string name="select_device">Select a device</string>
+    <string name="select_device">Select Scanner To Connect</string>
     <string name="text_paired">paired</string>
     <string name="text_scan">Try Again</string>
     <string name="text_cancel">Cancel</string>
