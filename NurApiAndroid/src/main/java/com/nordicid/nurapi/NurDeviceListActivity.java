@@ -98,9 +98,9 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
         Log.d(TAG,"Scan for devices finished");
         mScanButton.setText(R.string.text_scan);
         mScanning = false;
+        Log.d(TAG,"onScanFinished -> "+mDeviceList.size());
         if (mDeviceList.size() == 1){
             NurDeviceSpec deviceSpec;
-            mDeviceScanner.stopScan();
             deviceSpec = mDeviceList.get(0);
             Bundle b = new Bundle();
             // e.g. "type=BLE;addr=00:00:00:00:00:00;name=XXX;rssi=-44"
