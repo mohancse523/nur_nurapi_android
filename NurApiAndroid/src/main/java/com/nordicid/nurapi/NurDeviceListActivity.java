@@ -174,6 +174,7 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
         newDevicesListView = findViewById(R.id.new_devices);
         newDevicesListView.setAdapter(deviceAdapter);
         newDevicesListView.setOnItemClickListener(mDeviceClickListener);
+        startTimerToAutoConnect();
         mDeviceScanner.scanDevices();
         if (mDeviceList.size() == 0){
             listEmptyMessage.setVisibility(View.VISIBLE);
@@ -186,15 +187,21 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
         stopTimerToAutoConnect();
         autoconnectTimer = new CountDownTimer(10000, 1000) {
             public void onTick(long millisUntilFinished) {
+                Log.d(TAG, "onTick");
                 if (mScanButton != null){
                     if (mDeviceList.size() == 1){
                         int remainingSec = (int) (millisUntilFinished / 1000);
+                        Log.d(TAG, "size 1 -> "+ remainingSec);
                         mScanButton.setText(getString(R.string.auto_connecting, remainingSec));
                     }else if(mDeviceList.size() > 1){
+                        Log.d(TAG, "size more than 1");
                         mScanButton.setText(R.string.select_device);
                     }else {
+                        Log.d(TAG, "size 0 ");
                         mScanButton.setText("");
                     }
+                }else {
+                    Log.d(TAG, "mScanButton "+ mScanButton);
                 }
             }
             public void onFinish() {
