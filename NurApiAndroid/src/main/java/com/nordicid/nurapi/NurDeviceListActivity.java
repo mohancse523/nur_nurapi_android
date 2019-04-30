@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +40,7 @@ import android.widget.Toast;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 /**
  * Created by Nordic ID on 18.7.2016.
@@ -75,7 +77,7 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
     private TextView mCancelButton, mScanButton;
     private TextView listEmptyMessage;
     private static NurApi mApi;
-
+    private CountDownTimer autoconnectTimer;
     public void onScanStarted(){
         Log.d(TAG,"Scan for devices started");
         //mScanProgress.setVisibility(View.VISIBLE);
@@ -143,7 +145,8 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
             mScanButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (!mScanning) {
+                    if (!mScanning && mScanButton.getText().toString().equals(getString(R.string.text_scan))) {
+                        startTimerToAutoConnect();
                         mDeviceScanner.scanDevices();
                     }
                 }
@@ -176,6 +179,35 @@ public class NurDeviceListActivity extends Activity implements NurDeviceScanner.
             listEmptyMessage.setVisibility(View.VISIBLE);
         }else {
             listEmptyMessage.setVisibility(View.GONE);
+        }
+    }
+
+    private void startTimerToAutoConnect(){
+        stopTimerToAutoConnect();
+        autoconnectTimer = new CountDownTimer(10000, 1000) {
+            public void onTick(long millisUntilFinished) {
+                if (mScanButton != null){
+                    if (mDeviceList.size() == 1){
+                        int remainingSec = (int) (millisUntilFinished / 1000);
+                        mScanButton.setText(getString(R.string.auto_connecting, remainingSec));
+                    }else if(mDeviceList.size() > 1){
+                        mScanButton.setText(R.string.select_device);
+                    }else {
+                        mScanButton.setText("");
+                    }
+                }
+            }
+            public void onFinish() {
+                if (mScanButton != null){
+                    mScanButton.setText(R.string.text_scan);
+                }
+            }
+        }.start();
+    }
+
+    private void stopTimerToAutoConnect(){
+        if (autoconnectTimer != null){
+            autoconnectTimer.cancel();
         }
     }
 
