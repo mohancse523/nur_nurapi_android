@@ -3,8 +3,8 @@ apply plugin: 'com.android.library'
 android {
     compileSdkVersion 28
     defaultConfig {
-        def nurapiVersionCode = 46
-        def nurapiVersion = "2.0.46"
+        def nurapiVersionCode = 47
+        def nurapiVersion = "2.0.47"
 
         minSdkVersion 18
         targetSdkVersion 28
