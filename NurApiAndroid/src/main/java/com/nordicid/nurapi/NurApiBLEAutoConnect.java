@@ -347,7 +347,12 @@ public class NurApiBLEAutoConnect implements UartServiceEvents, NurApiAutoConnec
 			if (mServiceBound) {
 				mServiceBound = false;
 				mContext.stopService(new Intent(mContext, UartService.class));
-				mContext.unbindService(mServiceConnection);
+				if (mServiceConnection != null && mService.getConnState() != UartService.STATE_CONNECTED){
+					Log.d(TAG, "mServiceConnection unregistered");
+					mContext.unbindService(mServiceConnection);
+				}else {
+					Log.d(TAG, "mServiceConnection not registered");
+				}
 			}
 
 			mService.close();
